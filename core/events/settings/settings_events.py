@@ -1,0 +1,11 @@
+class SettingsEvents:
+    def __init__(self, settings, settings_gui) -> None:
+        self.settings = settings
+        self.settings_gui = settings_gui
+
+    def bind_events(self):
+        self.settings_gui.open_button.config(command=self.settings.open_file_callback)
+        self.settings_gui.back_button.config(command=self.settings._settings_manager.back_type)
+        self.settings_gui.next_button.config(command=self.settings._settings_manager.next_type)
+        self.settings_gui.create_button.config(command=self.settings._settings_manager.create_rename_window)
+        self.settings_gui.exit_button.config(command=self.settings.close_window)

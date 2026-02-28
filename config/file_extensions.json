@@ -1,0 +1,15 @@
+{
+    "languages": {
+        ".c": "C", ".cpp": "C++", ".cs": "C#", ".java": "Java",
+        ".js": "JavaScript", ".py": "Python", ".kt": "Kotlin"
+    },
+    "text": {
+        ".css": "CSS", ".csv": "CSV", ".doc": "DOC",
+        ".docx": "DOCX", ".html": "HTML", ".pdf": "PDF",
+        ".txt": "TXT", ".log": "LOG", ".xml": "XML"
+    },
+    "others": {
+        ".bin": "BIN", ".enc": "ENC",
+        ".jar": "JAR", ".json": "JSON"
+    }
+}

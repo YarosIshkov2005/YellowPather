@@ -1,0 +1,18 @@
+{
+    "Windows": {
+        "root": "C:\\"
+    },
+    "Darwin": {
+        "root": "/"
+    },
+    "Linux": {
+        "root": "/"
+    },
+    "Android": {
+        "root": "/storage/emulated/0/"
+    },
+    "auto_detect": false,
+    "root_path": false,
+    "user_path": false,
+    "device_path": true
+}

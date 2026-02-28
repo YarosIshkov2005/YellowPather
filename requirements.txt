@@ -1,0 +1,2 @@
+pillow>=12.1.0
+charset-normalizer>=3.4.4

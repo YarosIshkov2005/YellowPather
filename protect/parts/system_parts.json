@@ -1,0 +1,4 @@
+{
+    "Windows": ["C", "Users"],
+    "Linux": ["/", "home", "users", "storage", "emulated", "0"]
+}
