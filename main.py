@@ -17,10 +17,11 @@ from typing import Dict, List, Optional, Tuple
 
 class MDEFSFramework:
     """Initializes MDEFS."""
-    def __init__(self, root, app_gui, app_state, path_manager, search, select_state, select_position, app_render) -> None:
+    def __init__(self, root, app_gui, app_state, app_perms, path_manager, search, select_state, select_position, app_render) -> None:
         self.root = root
         self.app_gui = app_gui
         self.app_state = app_state
+        self.app_perms = app_perms
         self.path_manager = path_manager
         self.search = search
         self.select_state = select_state
@@ -37,6 +38,7 @@ class MDEFSFramework:
             root=self.root, 
             app_gui=self.app_gui, 
             app_state=self.app_state, 
+            app_perms=self.app_perms,
             path_manager=self.path_manager, 
             search=self.search, 
             select_state=self.select_state, 
@@ -61,8 +63,8 @@ class SystemHiddenResources:
     def load_resources(self):
         hidden_dict = {}
         try:
-            parent_catalog = Path(__file__).parents[1]
-            hidden_catalog = parent_catalog / 'system'
+            parent_catalog = Path(__file__).parent
+            hidden_catalog = parent_catalog / 'hidden'
             
             hidden_paths = hidden_catalog / 'hidden_paths.json'
             
@@ -130,9 +132,9 @@ class ImportManager:
         """Initializes ImportManager with application state."""
         pass
 
-    def os_system(self, root, settings, system_paths):
+    def os_system(self, root, system_paths):
         from system.os_system import SystemDetector
-        return SystemDetector(root=root, settings=settings, system_paths=system_paths)
+        return SystemDetector(root=root, system_paths=system_paths)
         
     def app_state(self):
         from core.state.main.app_state import AppState
@@ -180,13 +182,14 @@ class ImportManager:
         from components.parser.command_executer import CommandExecuterCore
         return CommandExecuterCore(root=root)
         
-    def command_parser(self, root, counters, select_position, app_render, parser, app_gui, app_state, search, button_state, path_manager, commands):
+    def command_parser(self, root, counters, select_position, app_render, mdefs, parser, app_gui, app_state, search, button_state, path_manager, commands):
         from managers.parser.command_parser import CommandParserCore
         return CommandParserCore(
             root=root,
             counters=counters, 
             select_position=select_position,
             app_render=app_render, 
+            mdefs=mdefs, 
             parser=parser, 
             app_gui=app_gui, 
             app_state=app_state, 
@@ -218,9 +221,9 @@ class ImportManager:
             select_position=select_position
         )
 
-    def update_gui(self, app_gui, app_state, app_render, app_navigator, select_position):
+    def update_gui(self, app_gui, app_state, app_render, app_navigator, button_state, select_position):
         from core.render.update.update_gui import UpdateGUI
-        return UpdateGUI(app_gui=app_gui, app_state=app_state, app_render=app_render, app_navigator=app_navigator, select_position=select_position)
+        return UpdateGUI(app_gui=app_gui, app_state=app_state, app_render=app_render, app_navigator=app_navigator, button_state=button_state, select_position=select_position)
         
     def keyboard(self, path_analyzer, app_navigator, update_gui):
         from controllers.hotkeys.shortcut_dispather import PressControllerCore
@@ -458,23 +461,23 @@ class FileManagerApp:
         self._button_state = self._importer.button_state(self._app_gui, self._app_state, self._path_manager, self._select_position)
         self._app_render = self._importer.app_render(self.root, self._counters, self._app_gui, self._app_state, self._select_position, self._select_state, self._button_state, self._path_manager)
         self._search = FileManagerSearch(self.root, self._system, self._path_manager, self._COMMANDS)
-        self._mdefs = MDEFSFramework(self.root, self._app_gui, self._app_state, self._path_manager, self._search, self._select_state, self._select_position, self._app_render)
-        self._settings = FileManagerSettings(self.root, self._app_gui, self._app_state, self._path_manager, self._mdefs, self._search, self._app_render)
-        self._os_system = self._importer.os_system(self.root, self._settings, self.system_paths)
+        self._os_system = self._importer.os_system(self.root, self.system_paths)
+        self._secure_manager = self._importer.secure_manager(self._counters, self.root, self._os_system, self._app_gui, self._app_state, self._button_state, self._secure_state, self._system)
+        self._app_perms = self._importer.app_perms(self.root, self._os_system, self._app_gui, self._app_state, self._perms_state, self._select_state, self._secure_manager, self._button_state, self._path_manager, self._app_render, self._counters, self._COMMANDS)
+        self._mdefs = MDEFSFramework(self.root, self._app_gui, self._app_state, self._app_perms, self._path_manager, self._search, self._select_state, self._select_position, self._app_render)
+        self._settings = FileManagerSettings(self.root, self._app_gui, self._app_state, self._path_manager, self._mdefs, self._search, self._app_render, self._select_position)
         #self._perms = PermissionManager(self.root, self._os_system)
 
         #self._resource_manager = self._importer.resource_manager(self._perms_state, self._app_perms)
 
-        self._secure_manager = self._importer.secure_manager(self._counters, self.root, self._os_system, self._app_gui, self._app_state, self._button_state, self._secure_state, self._system)
-        self._app_perms = self._importer.app_perms(self.root, self._os_system, self._app_gui, self._app_state, self._perms_state, self._select_state, self._secure_manager, self._button_state, self._path_manager, self._app_render, self._counters, self._COMMANDS)
         self._system_manager = self._importer.system_manager(self.root, self._settings, self._app_gui, self._app_state, self._app_perms, self._secure_state, self.system_paths, self._os_system, self._path_manager, self._secure_manager)
         self._input_manager = self._importer.input_manager(self.root, self._app_gui, self._app_state, self._secure_state, self._secure_manager, self._app_perms, self._mdefs)
-        self._command_parser = self._importer.command_parser(self.root, self._counters, self._select_position, self._app_render, self._parser, self._app_gui, self._app_state, self._search, self._button_state, self._path_manager, self._COMMANDS)
+        self._command_parser = self._importer.command_parser(self.root, self._counters, self._select_position, self._app_render, self._mdefs, self._parser, self._app_gui, self._app_state, self._search, self._button_state, self._path_manager, self._COMMANDS)
         self._file_redactor = FileRedactorCore(self.root, self._app_gui, self._app_perms, self._search, self._settings, self._path_manager, self._app_render)
         self._catalog_detector = self._importer.catalog_detector(self.root, self._app_gui, self._app_state, self._app_render, self._search, self._path_manager, self._system_manager, self._input_manager)
         self._path_analyzer = self._importer.path_analyzer(self.root, self._app_gui, self._app_state, self._app_perms, self._secure_state, self._search, self._select_position, self._app_render, self._button_state, self._path_manager, self._catalog_detector, self._command_parser, self._secure_manager, self._mdefs)
         self._app_navigator = self._importer.app_navigator(self.root, self._counters, self._search, self._app_gui, self._app_state, self._select_state, self._button_state, self._mdefs, self._select_position, self._secure_manager, self._app_render, self._app_perms, self._path_manager, self._input_manager, self._catalog_detector, self._path_analyzer)
-        self._update_gui = self._importer.update_gui(self._app_gui, self._app_state, self._app_render, self._app_navigator, self._select_position)
+        self._update_gui = self._importer.update_gui(self._app_gui, self._app_state, self._app_render, self._app_navigator, self._button_state, self._select_position)
         self._keyboard = self._importer.keyboard(self._path_analyzer, self._app_navigator, self._update_gui)
         self._main_events = self.main_events
 
@@ -837,7 +840,7 @@ class FileManagerSettings:
     extension-based file type detection.
     """
 
-    def __init__(self, root, app_gui, app_state, path_manager, mdefs, search, app_render) -> None:
+    def __init__(self, root, app_gui, app_state, path_manager, mdefs, search, app_render, select_position) -> None:
         """
         Initializes FileManagerSettings.
 
@@ -854,6 +857,7 @@ class FileManagerSettings:
         self.mdefs = mdefs
         self.search = search
         self.app_render = app_render
+        self.select_position = select_position
         
         self.settings_window: Optional[tk.Tk] = None
 
@@ -878,7 +882,7 @@ class FileManagerSettings:
     @lru_cache(maxsize=None)
     def settings_manager(self):
         from managers.settings.settings_manager import SettingsManager
-        return SettingsManager(settings=self, settings_gui=self._settings_gui, mdefs=self.mdefs, search=self.search, app_render=self.app_render)
+        return SettingsManager(settings=self, settings_gui=self._settings_gui, mdefs=self.mdefs, search=self.search, app_render=self.app_render, select_position=self.select_position)
 
     def create_window(self) -> None:
         """Creates settings window."""
@@ -899,8 +903,7 @@ class FileManagerSettings:
 
         self._settings_events.bind_events()
         
-        """TODO: В будущем зависимости будут передаваться через систему словарей."""
-        self.mdefs._mdefs_framework.bootstrapper.settings_window = self.settings_window
+        self.mdefs._mdefs_framework.callbacks['settings'] = self.settings_window
         self.control_open_button()
 
     @handle_errors

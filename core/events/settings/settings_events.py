@@ -7,5 +7,7 @@ class SettingsEvents:
         self.settings_gui.open_button.config(command=self.settings.open_file_callback)
         self.settings_gui.back_button.config(command=self.settings._settings_manager.back_type)
         self.settings_gui.next_button.config(command=self.settings._settings_manager.next_type)
-        self.settings_gui.create_button.config(command=self.settings._settings_manager.create_rename_window)
+        self.settings_gui.create_button.config(command=lambda: self.settings._settings_manager.create_rename_window('create'))
+        self.settings_gui.delete_button.config(command=self.settings._settings_manager.delete_select_resource)
+        self.settings_gui.rename_button.config(command=lambda: self.settings._settings_manager.create_rename_window('rename'))
         self.settings_gui.exit_button.config(command=self.settings.close_window)

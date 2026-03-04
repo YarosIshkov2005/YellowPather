@@ -1,15 +1,21 @@
+import string
+
 import tkinter as tk
 
 from tkinter.messagebox import showerror
 
-from typing import Optional
+from typing import Callable, Dict, Optional
 
 class RenameWindow:
     def __init__(self, root) -> None:
         self.root = root
 
         self.rename_window: Optional[tk.Tk] = None
-        self.callback_function = None
+
+        self.callbacks: Dict[Callable] = {}
+
+        self.target: str = 'rename'
+        self.forbidden: str = '\\ / : * ? " < > |'
 
     def create_window(self):
         if self.rename_window and self.rename_window.winfo_exists():
@@ -52,12 +58,31 @@ class RenameWindow:
             return False
         return True
 
-    def create_method_callback(self):
+    def check_forbidden_symbols(self, user_input):
+        punctuation = string.punctuation
+        parts = [part for part in user_input if part in punctuation]
+        if all(part for part in parts if part in self.forbidden) and parts:
+            showerror(
+                title='YellowPather Error 021:',
+                message=f"Characters {self.forbidden} not supported!",
+                parent=self.rename_window
+            )
+            self._rename_gui.enter_field.focus()
+            return False
+        return True
+
+    def target_function_callback(self):
         user_input = self._rename_gui.enter_field.get()
         if not self.check_length_string(user_input):
             return
 
-        self.callback_function(user_input)
+        if not self.check_forbidden_symbols(user_input):
+            return
+
+        if self.target == 'create':
+            self.callbacks['create'](user_input)
+        else:
+            self.callbacks['rename'](user_input)
 
     def close_window(self):
         if self.rename_window:

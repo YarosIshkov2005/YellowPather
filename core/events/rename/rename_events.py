@@ -5,4 +5,4 @@ class RenameEvents:
 
     def bind_events(self):
         self.rename_gui.cancel_button.config(command=self.rename.close_window)
-        self.rename_gui.next_button.config(command=self.rename.create_method_callback)
+        self.rename_gui.next_button.config(command=self.rename.target_function_callback)

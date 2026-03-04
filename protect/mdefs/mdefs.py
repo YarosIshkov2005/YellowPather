@@ -7,10 +7,11 @@ from typing import List, Dict, Any
 from functools import lru_cache
     
 class MDEFSManager:
-    def __init__(self, root, app_gui, app_state, path_manager, search, select_state, select_position, app_render) -> None:
+    def __init__(self, root, app_gui, app_state, app_perms, path_manager, search, select_state, select_position, app_render) -> None:
         self.root = root
         self.app_gui = app_gui
         self.app_state = app_state
+        self.app_perms = app_perms
         self.path_manager = path_manager
         self.search = search
         self.select_state = select_state
@@ -23,11 +24,11 @@ class MDEFSManager:
         self.config: Dict[str, Any] = {}
         self.paths_dict: Dict[str, Any] = {'paths': self.paths, 'symlinks': self.symlinks}
         
-        self._settings_window: tk.Tk = None
         self._progress_window: tk.Tk = self.progress_window
         self._notification_window: tk.Tk = self.notification_window
 
         self.callbacks: Dict[str, Any] = {
+            'settings': None,
             'window': self._progress_window.window,
             'description': self._progress_window.description,
             'progress': self._progress_window.progress,
@@ -40,9 +41,11 @@ class MDEFSManager:
 
         self._pointer = self.pointer
         self._bootstrapper = self.bootstrapper
+        self._delete_file = self.delete_file
         self._path_iterator = self.path_iterator
         self._access_manager = self.access_manager
         self._path_detector = self.path_detector
+        self._rename_file = self.rename_file
 
         self.callbacks['finish'] = self._path_detector.iteration
 
@@ -77,7 +80,19 @@ class MDEFSManager:
     @lru_cache(maxsize=None)
     def bootstrapper(self):
         from protect.bootstrapper.bootstrapper import Bootstrapper  
-        return Bootstrapper(root=self.root, notification_window=self._notification_window, pointer=self._pointer, path_manager=self.path_manager, settings_window=self._settings_window, search=self.search, select_state=self.select_state, app_render=self.app_render)
+        return Bootstrapper(root=self.root, notification_window=self._notification_window, pointer=self._pointer, path_manager=self.path_manager, callbacks=self.callbacks, search=self.search, select_state=self.select_state, app_render=self.app_render)
+
+    @property
+    @lru_cache(maxsize=None)
+    def delete_file(self):
+        from protect.delete.delete_file import DeleteFile
+        return DeleteFile(app_perms=self.app_perms, app_render=self.app_render, daemon=self._notification_window, pointer=self._pointer, path_manager=self.path_manager, search=self.search, select_state=self.select_state, callbacks=self.callbacks)
+
+    @property
+    @lru_cache(maxsize=None)
+    def rename_file(self):
+        from protect.rename.rename_file import RenameFile
+        return RenameFile(app_render=self.app_render, daemon=self._notification_window, path_manager=self.path_manager, search=self.search, select_state=self.select_state, callbacks=self.callbacks)
 
     @property
     @lru_cache
@@ -120,6 +135,12 @@ class MDEFSManager:
         absolute_path = parent_path / input_path
         create_path = Path(absolute_path) if isinstance(absolute_path, str) else absolute_path
         self._bootstrapper.bootstrapper(input_path, create_path, create_type)
+
+    def delete_file_callback(self, delete_path: Path):
+        self._delete_file.delete_file(delete_path)
+
+    def rename_file_callback(self, current_path: Path, rename_path: Path):
+        self._rename_file.rename_file(current_path, rename_path)
 
 class MDEFSModuleError(Exception):
     pass

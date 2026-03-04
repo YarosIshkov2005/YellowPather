@@ -17,6 +17,7 @@ class AppRenderCore:
 
         self.index: int = 0
         self.elements_count: int = 0
+        self.current_index: int = 1
 
     def protect_root_delete(self, event=None) -> None:
         """
@@ -51,8 +52,6 @@ class AppRenderCore:
         self.app_gui.select_window.delete(0, tk.END)
         self.app_gui.select_window.insert(0, *self.path_manager.short_names)
 
-        self.element_count()
-
         if self.update_position():
             return
 
@@ -62,6 +61,7 @@ class AppRenderCore:
         self.app_gui.path_entry.xview_moveto(1.0)
         self.app_gui.path_entry.focus()
 
+        self.button_state.control_update_button()
         self.button_state.control_up_button()
         self.button_state.control_select_button()
         self.button_state.control_down_button()
@@ -71,6 +71,8 @@ class AppRenderCore:
         self.button_state.control_settings_button()
         self.button_state.update_search_state()
 
+        self.element_count()
+
     def update_position(self):
         if len(self.path_manager.short_names) >= 1:
             self.app_gui.select_window.see(self.index)
@@ -79,15 +81,34 @@ class AppRenderCore:
             self.select_position.selected_index = self.index
             self.select_position.select_position()
 
+            self.path_manager.current_path = self.select_position.absolute_path
+
             if self.app_state.block_when_update:
                 self.app_state.block_when_update = False
                 return True
             return False
 
     def element_count(self):
+        if (self.app_state.reset_button_active or 
+            self.app_state.next_button_active):
+            self.current_index = 1
+        elif self.app_state.back_button_active:
+            self.current_index = self.select_state.current_position + 1
+
         self.elements_count = len(self.path_manager.short_names)
+        if self.elements_count == 0:
+            self.current_index = 0
+            
         self.app_gui.elements_label.config(text=f'Elements: {self.elements_count}')
-        self.app_gui.current_label.config(text=f'Element: {self.index + 1}/{self.elements_count}')
+        self.app_gui.current_label.config(
+            text=f'Element: {self.current_index}/{self.elements_count}')
+
+        if self.app_state.reset_button_active:
+            self.app_state.reset_button_active = False
+        elif self.app_state.back_button_active:
+            self.app_state.back_button_active = False
+        elif self.app_state.next_button_active:
+            self.app_state.next_button_active = False
 
     def insert_root_path(self) -> None:
         """Inserts root path into entry field."""
@@ -130,7 +151,11 @@ class AppRenderCore:
             parent_path /= part
 
         relative_path = parent_path.relative_to(self.path_manager.root_path)
-        navigation_path = relative_path / self.select_position.relative_path
+        resources = len(self.path_manager.short_names)
+        if resources >= 1:
+            navigation_path = relative_path / self.select_position.relative_path
+        else:
+            navigation_path = relative_path
 
         self.app_gui.path_entry.delete(self.counters['root_position'], tk.END)
         self.app_gui.path_entry.insert(self.counters['root_position'], navigation_path)

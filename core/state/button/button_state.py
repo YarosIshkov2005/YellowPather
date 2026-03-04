@@ -24,6 +24,18 @@ class ButtonState:
         self.last_search_text = self.app_gui.path_entry.get()
         self.control_search_button()
 
+    def control_update_button(self):
+        root_path = self.path_manager.root_path
+
+        if len(self.path_manager.short_names) == 0:
+            self.app_gui.update_button.config(state='disabled')
+            return
+
+        if root_path is not None and root_path.exists():
+            self.app_gui.update_button.config(state='normal')
+        else:
+            self.app_gui.update_button.config(state='disabled')
+
     def control_up_button(self):
         if self.index != 0 and len(self.path_manager.short_names) >= 2:
             self.app_gui.up_button.config(state='normal')
