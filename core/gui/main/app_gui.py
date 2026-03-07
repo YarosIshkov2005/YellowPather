@@ -38,13 +38,14 @@ class AppGUI:
         self.search_button = ttk.Button(
             self.frame_search,
             text='Search',
-            state='disable'
+            state='disabled'
         )
         self.search_button.grid(row=0, column=2, padx=10, pady=10)
        
         self.update_button = ttk.Button(
             self.frame_search,
-            text='Update'
+            text='Update',
+            state='disabled'
         )
         self.update_button.grid(row=1, column=0, padx=10, pady=10)
        
