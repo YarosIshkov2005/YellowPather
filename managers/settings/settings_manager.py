@@ -1,22 +1,32 @@
 import tkinter as tk
 
-from tkinter.messagebox import showinfo, showerror
+from tkinter.messagebox import showerror
 
 from functools import lru_cache
-from typing import Optional
+from typing import Any, Optional
 
 class SettingsManager:
+<<<<<<< HEAD
     def __init__(self, settings, settings_gui, mdefs, search, app_render, select_position) -> None:
+=======
+    def __init__(self, counters, settings, settings_gui, mdefs, path_manager, states, search, app_state, app_render, select_position) -> None:
+        self.counters = counters
+>>>>>>> f38613a (Version 1.0.2)
         self.settings = settings
         self.settings_gui = settings_gui
         self.mdefs = mdefs
+        self.path_manager = path_manager
+        self.states = states
         self.search = search
+        self.app_state = app_state
         self.app_render = app_render
         self.select_position = select_position
 
         self.settings_window: Optional[tk.Tk] = None
-        self.create_type: str = 'catalog'
-        self.type_count: int = 0
+        self.create_type: Any = self.states['create']
+        self.sort_type: Any = self.states['sorting']
+        self.type_count: int = self.counters['create_position']
+        self.sort_count: int = self.counters['sort_position']
 
         self._rename_window = self.rename_window
         self._rename_window.callbacks['create'] = self.create_new_resource
@@ -33,13 +43,15 @@ class SettingsManager:
         if self.type_count == -1:
             self.type_count = 1
 
+        self.counters['create_position'] = self.type_count
         self.select_create_type()
 
     def select_create_type(self):
-        if self.type_count == 0:
-            self.create_type = 'catalog'
+        if self.counters['create_position'] == 0:
+            self.states['create'] = 'catalog'
         else:
-            self.create_type = 'file'
+            self.states['create'] = 'file'
+        self.create_type = self.states['create']
         self.settings_gui.select_type.config(text=f'    {self.create_type}    ')
 
     def next_type(self):
@@ -47,6 +59,7 @@ class SettingsManager:
         if self.type_count == 2:
             self.type_count = 0
 
+        self.counters['create_position'] = self.type_count
         self.select_create_type()
 
     def create_rename_window(self, target: str):
@@ -81,3 +94,41 @@ class SettingsManager:
             self._rename_window.close_window()
         except Exception as e:
             showerror(title='Yellow Pather Error 009:', message=f'{e}', parent=self.settings_window)
+<<<<<<< HEAD
+=======
+
+    def select_back_sort(self):
+        self.sort_count -= 1
+        if self.sort_count == -1:
+            self.sort_count = 3
+
+        self.counters['sort_position'] = self.sort_count
+        self.select_sort_type()
+
+    def select_sort_type(self):
+        if self.counters['sort_position'] == 0:
+            self.states['sorting'] = 'disabled'
+        elif self.counters['sort_position'] == 1:
+            self.states['sorting'] = 'by name'
+        elif self.counters['sort_position'] == 2:
+            self.states['sorting'] = 'by date'
+        elif self.counters['sort_position'] == 3:
+            self.states['sorting'] = 'by size'
+        self.sort_type = self.states['sorting']
+        self.settings_gui.sorting_type.config(text=f'    {self.sort_type}    ')
+
+        paths = self.path_manager.abs_paths
+        root = self.path_manager.root_path
+        path = self.path_manager.absolute_path
+        reverse = True
+
+        self.mdefs._mdefs_framework.file_sorter_callback(paths, root, path, reverse, self.sort_type)
+
+    def select_next_sort(self):
+        self.sort_count += 1
+        if self.sort_count == 4:
+            self.sort_count = 0
+
+        self.counters['sort_position'] = self.sort_count
+        self.select_sort_type()
+>>>>>>> f38613a (Version 1.0.2)

@@ -7,13 +7,23 @@ from typing import List, Dict, Any
 from functools import lru_cache
     
 class MDEFSManager:
+<<<<<<< HEAD
     def __init__(self, root, app_gui, app_state, app_perms, path_manager, search, select_state, select_position, app_render) -> None:
+=======
+    def __init__(self, root, app_gui, app_state, app_perms, commands, perms_state, path_manager, search, system, select_state, select_position, app_render) -> None:
+>>>>>>> f38613a (Version 1.0.2)
         self.root = root
         self.app_gui = app_gui
         self.app_state = app_state
         self.app_perms = app_perms
+<<<<<<< HEAD
+=======
+        self.COMMANDS = commands if commands is not None else ()
+        self.perms_state = perms_state
+>>>>>>> f38613a (Version 1.0.2)
         self.path_manager = path_manager
         self.search = search
+        self.system = system
         self.select_state = select_state
         self.select_position = select_position
         self.app_render = app_render
@@ -36,7 +46,8 @@ class MDEFSManager:
             'mode': self._progress_window.mode,
             'process': self._progress_window.process,
             'close': self._progress_window.close,
-            'finish': None
+            'finish': None,
+            'update': None
         }
 
         self._pointer = self.pointer
@@ -46,8 +57,13 @@ class MDEFSManager:
         self._access_manager = self.access_manager
         self._path_detector = self.path_detector
         self._rename_file = self.rename_file
+<<<<<<< HEAD
+=======
+        self._file_sorter = self.file_sorter
+>>>>>>> f38613a (Version 1.0.2)
 
         self.callbacks['finish'] = self._path_detector.iteration
+        self.app_render.callback = self.file_sorter_callback
 
         self._notification_window.create_window()
         self.load_config()
@@ -106,6 +122,12 @@ class MDEFSManager:
         from protect.detector.path_detector import PathDetector
         return PathDetector(root=self.root, app_state=self.app_state, access_manager=self._access_manager, paths_dict=self.paths_dict)
 
+    @property
+    @lru_cache(maxsize=None)
+    def file_sorter(self):
+        from protect.sorter.file_sorter import FileSorter
+        return FileSorter(app_state=self.app_state, app_perms=self.app_perms, callbacks=self.callbacks, commands=self.COMMANDS, pointer=self.pointer, perms_state=self.perms_state, path_manager=self.path_manager, system=self.system)
+
     def load_config(self) -> None:
         parent_path = Path(__file__).parents[1]
         parts_catalog = parent_path / 'parts'
@@ -142,6 +164,12 @@ class MDEFSManager:
     def rename_file_callback(self, current_path: Path, rename_path: Path):
         self._rename_file.rename_file(current_path, rename_path)
 
+<<<<<<< HEAD
+=======
+    def file_sorter_callback(self, paths: List[Path], root: Path, path: Path = None, reverse: bool = True, sorting: str = 'disabled'):
+        self._file_sorter.file_sorter(paths, root, path, reverse, sorting)
+
+>>>>>>> f38613a (Version 1.0.2)
 class MDEFSModuleError(Exception):
     pass
             

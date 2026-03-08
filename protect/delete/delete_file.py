@@ -16,8 +16,17 @@ class DeleteFile:
         self.callbacks = callbacks
 
     def delete_file(self, delete_path: Path):
+<<<<<<< HEAD
         warning_message = (
             f"Do you really want to delete '{delete_path.name}' permanently?\n\n"
+=======
+        length = 0
+        if self.path_manager.current_path.is_dir():
+            resources = [path for path in self.path_manager.current_path.iterdir()]
+            length = len(resources)
+        warning_message = (
+            f"Do you really want to delete '{delete_path.name}' permanently ({length})?\n\n"
+>>>>>>> f38613a (Version 1.0.2)
             'Continue?'
         )
         try:

@@ -3,11 +3,13 @@ import os
 import tkinter as tk
 
 from pathlib import Path
+from typing import Callable
 
 class AppRenderCore:
-    def __init__(self, root, counters, app_gui, app_state, select_position, select_state, button_state, path_manager):
+    def __init__(self, root, counters, states, app_gui, app_state, select_position, select_state, button_state, path_manager):
         self.root = root
         self.counters = counters
+        self.states = states
         self.app_gui = app_gui
         self.app_state = app_state
         self.select_position = select_position
@@ -18,6 +20,11 @@ class AppRenderCore:
         self.index: int = 0
         self.elements_count: int = 0
         self.current_index: int = 1
+<<<<<<< HEAD
+=======
+
+        self.callback: Callable = None
+>>>>>>> f38613a (Version 1.0.2)
 
     def protect_root_delete(self, event=None) -> None:
         """
@@ -48,6 +55,11 @@ class AppRenderCore:
     def update_select_window(self) -> None:
         """Updates Listbox content with current directory items."""
         self.protect_root_path()
+
+        if not self.app_state.is_recursive_search:
+            self.callback(self.path_manager.abs_paths, 
+                self.path_manager.root_path, self.path_manager.absolute_path, 
+                    True, self.states['sorting'])
 
         self.app_gui.select_window.delete(0, tk.END)
         self.app_gui.select_window.insert(0, *self.path_manager.short_names)
