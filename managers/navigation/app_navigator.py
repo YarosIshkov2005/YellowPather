@@ -237,6 +237,12 @@ class AppNavigatorCore:
         if not self.app_state.reset_button_active:
             self.app_state.reset_button_active = True
 
+<<<<<<< HEAD
+=======
+        if self.app_state.is_recursive_search:
+            self.app_state.is_recursive_search = False
+
+>>>>>>> f38613a (Version 1.0.2)
         self.mdefs._mdefs_framework.mdefs_pointer('clear')
         self.mdefs._mdefs_framework.mdefs_pointer('root')
 
@@ -275,9 +281,6 @@ class AppNavigatorCore:
 
         if absolute_path.is_dir():
             self.app_render.add_slash(absolute_path)
-
-        self.app_gui.select_window.see(self.index)
-        self.app_gui.select_window.selection_set(self.index)
 
         self.app_gui.select_button.config(text='Select')
         self.app_gui.select_window.config(selectbackground='blue')

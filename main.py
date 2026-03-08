@@ -17,13 +17,23 @@ from typing import Dict, List, Optional, Tuple
 
 class MDEFSFramework:
     """Initializes MDEFS."""
+<<<<<<< HEAD
     def __init__(self, root, app_gui, app_state, app_perms, path_manager, search, select_state, select_position, app_render) -> None:
+=======
+    def __init__(self, root, app_gui, app_state, app_perms, commands, perms_state, path_manager, search, system, select_state, select_position, app_render) -> None:
+>>>>>>> f38613a (Version 1.0.2)
         self.root = root
         self.app_gui = app_gui
         self.app_state = app_state
         self.app_perms = app_perms
+<<<<<<< HEAD
+=======
+        self.COMMANDS = commands if commands is not None else ()
+        self.perms_state = perms_state
+>>>>>>> f38613a (Version 1.0.2)
         self.path_manager = path_manager
         self.search = search
+        self.system = system
         self.select_state = select_state
         self.select_position = select_position
         self.app_render = app_render
@@ -39,8 +49,14 @@ class MDEFSFramework:
             app_gui=self.app_gui, 
             app_state=self.app_state, 
             app_perms=self.app_perms,
+<<<<<<< HEAD
+=======
+            commands=self.COMMANDS, 
+            perms_state=self.perms_state,
+>>>>>>> f38613a (Version 1.0.2)
             path_manager=self.path_manager, 
             search=self.search, 
+            system=self.system, 
             select_state=self.select_state, 
             select_position=self.select_position, 
             app_render=self.app_render
@@ -199,11 +215,12 @@ class ImportManager:
             commands=commands
         )
         
-    def app_render(self, root, counters, app_gui, app_state, select_position, select_state, button_state, path_manager):
+    def app_render(self, root, counters, states, app_gui, app_state, select_position, select_state, button_state, path_manager):
         from core.render.main.app_render import AppRenderCore
         return AppRenderCore(
             counters=counters,
             root=root,
+            states=states,
             app_gui=app_gui,
             app_state=app_state,
             select_position=select_position,
@@ -221,9 +238,15 @@ class ImportManager:
             select_position=select_position
         )
 
+<<<<<<< HEAD
     def update_gui(self, app_gui, app_state, app_render, app_navigator, button_state, select_position):
         from core.render.update.update_gui import UpdateGUI
         return UpdateGUI(app_gui=app_gui, app_state=app_state, app_render=app_render, app_navigator=app_navigator, button_state=button_state, select_position=select_position)
+=======
+    def update_gui(self, app_gui, app_state, app_render, app_navigator, button_state, path_analyzer, select_position):
+        from core.render.update.update_gui import UpdateGUI
+        return UpdateGUI(app_gui=app_gui, app_state=app_state, app_render=app_render, app_navigator=app_navigator, button_state=button_state, path_analyzer=path_analyzer, select_position=select_position)
+>>>>>>> f38613a (Version 1.0.2)
         
     def keyboard(self, path_analyzer, app_navigator, update_gui):
         from controllers.hotkeys.shortcut_dispather import PressControllerCore
@@ -428,17 +451,39 @@ class FileManagerApp:
         self.root.resizable(False, False)
         self.root.protocol('WM_DELETE_WINDOW', self.close_window)
         
+        self._create_position: int = 0
+        self._sort_position: int = 0
         self._start_position: int = 0
         self._root_position: int = 0
+
+        self.counters: Dict[int] = {}
+        self.states: Dict[str] = {}
+        self.settings: Dict[Dict] = {}
   
         self._counters = {
             'start_position': self._start_position,
             'root_position': self._root_position
         }
+
+        self._settings_counts = {
+            'create_position': self._create_position,
+            'sort_position': self._sort_position
+        }
+
+        self._states = {'create': 'catalog', 'sorting': 'disabled'}
         
         self.parent_catalog = Path(__file__).parent
         self.config_catalog = self.parent_catalog / 'config'
         self.system_paths = self.config_catalog / 'system_paths.json'
+        self.settings_configure = self.config_catalog / 'settings.json'
+
+        if not self.check_resource_exists(self.settings_configure):
+            self.create_settings_configure(self.settings_configure)
+            self.load_settings_configure()
+        else:
+            self.load_settings_configure()
+
+        self.check_settings_parameters()
               
         self._COMMANDS: Tuple[str] = ('cmd-parser:on', 'cmd-parser:off')
         
@@ -459,13 +504,18 @@ class FileManagerApp:
         self._select_state = self._importer.select_state(self._app_gui)
         self._select_position = self._importer.select_position(self._app_gui, self._path_manager)
         self._button_state = self._importer.button_state(self._app_gui, self._app_state, self._path_manager, self._select_position)
-        self._app_render = self._importer.app_render(self.root, self._counters, self._app_gui, self._app_state, self._select_position, self._select_state, self._button_state, self._path_manager)
+        self._app_render = self._importer.app_render(self.root, self._counters, self.states, self._app_gui, self._app_state, self._select_position, self._select_state, self._button_state, self._path_manager)
         self._search = FileManagerSearch(self.root, self._system, self._path_manager, self._COMMANDS)
         self._os_system = self._importer.os_system(self.root, self.system_paths)
         self._secure_manager = self._importer.secure_manager(self._counters, self.root, self._os_system, self._app_gui, self._app_state, self._button_state, self._secure_state, self._system)
         self._app_perms = self._importer.app_perms(self.root, self._os_system, self._app_gui, self._app_state, self._perms_state, self._select_state, self._secure_manager, self._button_state, self._path_manager, self._app_render, self._counters, self._COMMANDS)
+<<<<<<< HEAD
         self._mdefs = MDEFSFramework(self.root, self._app_gui, self._app_state, self._app_perms, self._path_manager, self._search, self._select_state, self._select_position, self._app_render)
         self._settings = FileManagerSettings(self.root, self._app_gui, self._app_state, self._path_manager, self._mdefs, self._search, self._app_render, self._select_position)
+=======
+        self._mdefs = MDEFSFramework(self.root, self._app_gui, self._app_state, self._app_perms, self._COMMANDS, self._perms_state, self._path_manager, self._search, self._system, self._select_state, self._select_position, self._app_render)
+        self._settings = FileManagerSettings(self.root, self._app_gui, self._app_state, self.settings_counts, self._path_manager, self.states, self._mdefs, self._search, self._app_render, self._select_position)
+>>>>>>> f38613a (Version 1.0.2)
         #self._perms = PermissionManager(self.root, self._os_system)
 
         #self._resource_manager = self._importer.resource_manager(self._perms_state, self._app_perms)
@@ -477,9 +527,15 @@ class FileManagerApp:
         self._catalog_detector = self._importer.catalog_detector(self.root, self._app_gui, self._app_state, self._app_render, self._search, self._path_manager, self._system_manager, self._input_manager)
         self._path_analyzer = self._importer.path_analyzer(self.root, self._app_gui, self._app_state, self._app_perms, self._secure_state, self._search, self._select_position, self._app_render, self._button_state, self._path_manager, self._catalog_detector, self._command_parser, self._secure_manager, self._mdefs)
         self._app_navigator = self._importer.app_navigator(self.root, self._counters, self._search, self._app_gui, self._app_state, self._select_state, self._button_state, self._mdefs, self._select_position, self._secure_manager, self._app_render, self._app_perms, self._path_manager, self._input_manager, self._catalog_detector, self._path_analyzer)
+<<<<<<< HEAD
         self._update_gui = self._importer.update_gui(self._app_gui, self._app_state, self._app_render, self._app_navigator, self._button_state, self._select_position)
+=======
+        self._update_gui = self._importer.update_gui(self._app_gui, self._app_state, self._app_render, self._app_navigator, self._button_state, self._path_analyzer, self._select_position)
+>>>>>>> f38613a (Version 1.0.2)
         self._keyboard = self._importer.keyboard(self._path_analyzer, self._app_navigator, self._update_gui)
         self._main_events = self.main_events
+
+        self._mdefs._mdefs_framework.callbacks['update'] = self._update_gui
 
         self.BASIC_PATH_CONFIG: Dict[str] = {
             'Windows': {'root': 'C:\\'},
@@ -521,6 +577,25 @@ class FileManagerApp:
             update_gui=self._update_gui
         )
 
+    def check_settings_parameters(self):
+        if self._settings_counts['create_position'] <= -1:
+            self._settings_counts['create_position'] = 0
+
+        if self._settings_counts['create_position'] >= 2:
+            self._settings_counts['create_position'] = 1
+
+        if self._settings_counts['sort_position'] <= -1:
+            self._settings_counts['sort_position'] = 0
+
+        if self._settings_counts['sort_position'] >= 4:
+            self._settings_counts['sort_position'] = 3
+
+        if not isinstance(self._settings_counts['create_position'], int):
+            self._settings_counts['create_position'] = 0
+
+        if not isinstance(self._settings_counts['sort_position'], int):
+            self._settings_counts['sort_position'] = 0
+
     def load_resources(self) -> None:
         """
         Loads application resources and creates directory structure.
@@ -561,14 +636,14 @@ class FileManagerApp:
                 self.close_window()
                 return
 
-            if not self.check_resource_exists(self.system_paths) or self.system_paths.stat().st_size == 0:
+            if not self.check_resource_exists(self.system_paths):
                 self.create_basic_path_config(self.system_paths)
 
             self._file_redactor.load_resources(parent_catalog)
             self._parser.load_resources(parent_catalog)
 
             #self._perms.system_paths = self.system_paths
-            protect_path = parent_catalog.parents[0]
+            #protect_path = parent_catalog.parents[0]
             #self._perms.protect_catalog_list.append(protect_path)
             #self._perms.set_permissions()
 
@@ -630,8 +705,29 @@ class FileManagerApp:
         with open(config_path, 'w', encoding='utf-8') as json_file:
             json.dump(self.BASIC_PATH_CONFIG, json_file, indent=4)
 
+    @handle_errors
+    def create_settings_configure(self, config_path: Path):
+        with open(config_path, 'w', encoding='utf-8') as json_file:
+            data = {'counters': self._settings_counts, 'states': self._states}
+            json.dump(data, json_file, indent=4)
+
+    @handle_errors
+    def load_settings_configure(self):
+        with open(self.settings_configure, 'r', encoding='utf-8') as json_file:
+            self.settings = json.loads(json_file.read())
+            self.settings_counts = self.settings['counters']
+            self.states = self.settings['states']
+
     def close_window(self) -> None:
         """Closes application and all additional windows."""
+        self._settings_counts = self.settings_counts
+        self._states = self.states
+        try:
+            if self.check_resource_exists(self.settings_configure):
+                self.create_settings_configure(self.settings_configure)
+        except Exception:
+            pass
+
         self._settings.close_window()
 
         if self.root and self.root.winfo_exists():
@@ -840,7 +936,11 @@ class FileManagerSettings:
     extension-based file type detection.
     """
 
+<<<<<<< HEAD
     def __init__(self, root, app_gui, app_state, path_manager, mdefs, search, app_render, select_position) -> None:
+=======
+    def __init__(self, root, app_gui, app_state, counters, path_manager, states, mdefs, search, app_render, select_position) -> None:
+>>>>>>> f38613a (Version 1.0.2)
         """
         Initializes FileManagerSettings.
 
@@ -853,7 +953,9 @@ class FileManagerSettings:
         self.root = root
         self.app_gui = app_gui
         self.app_state = app_state
+        self.counters = counters
         self.path_manager = path_manager
+        self.states = states
         self.mdefs = mdefs
         self.search = search
         self.app_render = app_render
@@ -882,7 +984,11 @@ class FileManagerSettings:
     @lru_cache(maxsize=None)
     def settings_manager(self):
         from managers.settings.settings_manager import SettingsManager
+<<<<<<< HEAD
         return SettingsManager(settings=self, settings_gui=self._settings_gui, mdefs=self.mdefs, search=self.search, app_render=self.app_render, select_position=self.select_position)
+=======
+        return SettingsManager(counters=self.counters, settings=self, settings_gui=self._settings_gui, mdefs=self.mdefs, path_manager=self.path_manager, states=self.states, search=self.search, app_state=self.app_state, app_render=self.app_render, select_position=self.select_position)
+>>>>>>> f38613a (Version 1.0.2)
 
     def create_window(self) -> None:
         """Creates settings window."""
@@ -943,6 +1049,10 @@ class FileManagerSettings:
             self.root.lift()
             self.root.focus_force()
             self.app_gui.path_entry.focus()
+
+        path = self.path_manager.absolute_path
+        self.app_render.update_select_window()
+        self.app_render.canonize_entered_path(path)
 
 
 class CommandParserInit:

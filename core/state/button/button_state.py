@@ -45,6 +45,10 @@ class ButtonState:
     def control_select_button(self):
         """Controls select buttons state."""
         current_path = self.select_position.absolute_path
+        
+        if current_path is None:
+            self.app_gui.select_button.config(state='disabled')
+            return
 
         if self.app_state.is_parser_active:
             self.app_gui.select_button.config(state='disabled')

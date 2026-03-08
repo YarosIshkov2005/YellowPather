@@ -1,10 +1,18 @@
 class UpdateGUI:
+<<<<<<< HEAD
     def __init__(self, app_gui, app_state, app_render, app_navigator, button_state, select_position) -> None:
+=======
+    def __init__(self, app_gui, app_state, app_render, app_navigator, button_state, path_analyzer, select_position) -> None:
+>>>>>>> f38613a (Version 1.0.2)
         self.app_gui = app_gui
         self.app_state = app_state
         self.app_render = app_render
         self.app_navigator = app_navigator
         self.button_state = button_state
+<<<<<<< HEAD
+=======
+        self.path_analyzer = path_analyzer
+>>>>>>> f38613a (Version 1.0.2)
         self.select_position = select_position
 
     def update_gui(self):
@@ -16,16 +24,26 @@ class UpdateGUI:
         self.app_navigator.marker_select()
         self.app_navigator.current_index()
 
+<<<<<<< HEAD
         self.button_state.index = 0
         self.button_state.control_up_button()
         self.button_state.control_select_button()
         self.button_state.control_down_button()
 
+=======
+>>>>>>> f38613a (Version 1.0.2)
         self.app_render.index = 0
         self.app_render.update_select_window()
+
+        self.button_state.index = 0
+        self.button_state.control_up_button()
+        self.button_state.control_select_button()
+        self.button_state.control_down_button()
 
         self.select_position.selected_index = self.app_navigator.index
         self.select_position.select_position()
 
         absolute_path = self.select_position.absolute_path.parent
         self.app_render.canonize_entered_path(absolute_path)
+
+        self.path_analyzer.generate_points(absolute_path)
