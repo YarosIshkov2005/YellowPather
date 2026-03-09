@@ -1,0 +1,10 @@
+{
+    "counters": {
+        "create_position": 0,
+        "sort_position": 0
+    },
+    "states": {
+        "create": "catalog",
+        "sorting": "disabled"
+    }
+}

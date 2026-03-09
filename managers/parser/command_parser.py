@@ -7,11 +7,12 @@ from typing import Optional
 from pathlib import Path
 
 class CommandParserCore:
-    def __init__(self, root, counters, select_position, app_render, parser, app_gui, app_state, search, button_state, path_manager, commands):
+    def __init__(self, root, counters, select_position, app_render, mdefs, parser, app_gui, app_state, search, button_state, path_manager, commands):
         self.root = root
         self.counters = counters
         self.select_position = select_position
         self.app_render = app_render
+        self.mdefs = mdefs
         self.parser = parser
         self.app_gui = app_gui
         self.app_state = app_state
@@ -24,7 +25,7 @@ class CommandParserCore:
 
     def change_mode(self, string_path: str) -> bool:
         """
-        Handles mode switching between cmd:0 and cmd:1.
+        Handles mode switching between cmd-parser:on and cmd-parser:off.
 
         Args:
             string_path: Current path string.
@@ -44,7 +45,7 @@ class CommandParserCore:
         if self.app_state.is_string_active:
             if cmd not in self.COMMANDS:
                 parse_result = self.parser.call_detector(
-                    cmd, self.path_manager.current_path, self.path_manager.abs_paths
+                    cmd, self.mdefs._mdefs_framework._pointer.catalog_path, self.path_manager.abs_paths
                 )
                 execute_result = self.parser.call_executer(
                     parse_result
