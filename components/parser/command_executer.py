@@ -12,8 +12,10 @@ from typing import Optional, List, Dict, Any
 class CommandExecuterCore:
     """Class of command executer."""
 
-    def __init__(self, root) -> None:
-        self.root = root
+    def __init__(self, globals) -> None:
+        self.globals = globals
+        
+        self.root = self.globals['root']
 
     def command_executer(
         self,

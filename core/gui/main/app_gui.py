@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 
 class AppGUI:
-   def __init__(self, root):
-       self.root = root
+   def __init__(self, globals):
+        self.globals = globals
+        self.root = self.globals['root']
       
    def widgets_container(self) -> None:
         """Creates container frames for UI widgets."""
@@ -38,13 +39,14 @@ class AppGUI:
         self.search_button = ttk.Button(
             self.frame_search,
             text='Search',
-            state='disable'
+            state='disabled'
         )
         self.search_button.grid(row=0, column=2, padx=10, pady=10)
        
         self.update_button = ttk.Button(
             self.frame_search,
-            text='Update'
+            text='Update',
+            state='disabled'
         )
         self.update_button.grid(row=1, column=0, padx=10, pady=10)
        

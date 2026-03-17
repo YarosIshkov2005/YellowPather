@@ -1,8 +1,10 @@
 from typing import List
 
 class SelectPosition:
-    def __init__(self, app_gui) -> None:
-        self.app_gui = app_gui
+    def __init__(self, callstack) -> None:
+        self.callstack = callstack
+        
+        self.app_gui = self.callstack.app_gui
 
         self.index: int = 0
         self.reset: int = 0

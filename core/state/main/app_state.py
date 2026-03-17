@@ -26,6 +26,10 @@ class AppState:
         self.is_search_executed: bool = False
         self.block_when_update: bool = False
         self.search_not_executed: bool = False
+        self.reset_button_active: bool = False
+        self.back_button_active: bool = False
+        self.next_button_active: bool = False
+        self.search_protect_enabled: bool = True
 
 
 class PermissionState:

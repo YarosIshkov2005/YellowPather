@@ -12,9 +12,11 @@ from pathlib import Path
 class CommandDetectorCore:
     """Class of command parser."""
 
-    def __init__(self, root, commands) -> None:
-        self.root = root
-        self.MODE_COMMANDS = commands if commands is not None else ()
+    def __init__(self, globals) -> None:
+        self.globals = globals
+
+        self.root = self.globals['root']
+        self.MODE_COMMANDS = self.globals['commands']
 
         self.MAX_ARGUMENTS: int = 10
         self.MIN_ARGUMENTS: int = 4

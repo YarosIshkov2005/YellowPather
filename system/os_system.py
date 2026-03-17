@@ -8,10 +8,11 @@ from pathlib import Path
 
 class SystemDetector:
     """Calculates the current operating system on the device."""
-    def __init__(self, root, settings, system_paths) -> None:
-        self.root = root
-        self.settings = settings
-        self.system_paths = system_paths
+    def __init__(self, globals) -> None:
+        self.globals = globals
+
+        self.root = self.globals['root']
+        self.system_paths = self.globals['system_paths']
 
         self.SYSTEM_NAME: dict[str] = {
             'Windows': 'Windows',
@@ -73,7 +74,5 @@ class SystemDetector:
 
     def close_window(self) -> None:
         """Closes application and all additional windows."""
-        self.settings.close_window()
-
         if self.root and self.root.winfo_exists():
             self.root.destroy()

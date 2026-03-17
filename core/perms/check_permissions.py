@@ -6,19 +6,22 @@ from tkinter.messagebox import showerror
 from pathlib import Path
 
 class CheckPermissionsCore:
-    def __init__(self, root, os_system, app_gui, app_state, perms_state, select_state, secure_manager, button_state, path_manager, app_render, counters, commands):
-        self.root = root
-        self.os_system = os_system
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.perms_state = perms_state
-        self.select_state = select_state
-        self.secure_manager = secure_manager
-        self.button_state = button_state
-        self.path_manager = path_manager
-        self.app_render = app_render
-        self.counters = counters
-        self.COMMANDS = commands if commands is not None else ()
+    def __init__(self, globals, callstack):
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.app_render = self.callstack.app_render
+        self.button_state = self.callstack.button_state
+        self.counters = self.globals['counters']
+        self.COMMANDS = self.globals['commands']
+        self.os_system = self.callstack.os_system
+        self.perms_state = self.callstack.perms_state
+        self.path_manager = self.callstack.path_manager
+        self.select_state = self.callstack.select_state
+        self.secure_manager = self.callstack.secure_manager
        
     def check_permission(self, check_path: Path) -> bool:
         """

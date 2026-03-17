@@ -3,15 +3,18 @@ from tkinter.messagebox import showinfo
 from pathlib import Path
 
 class CatalogDetector:
-    def __init__(self, root, app_gui, app_state, app_render, search, path_manager, system_manager, input_manager) -> None:
-        self.root = root
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.app_render = app_render
-        self.search = search
-        self.path_manager = path_manager
-        self.system_manager = system_manager
-        self.input_manager = input_manager
+    def __init__(self, globals, callstack) -> None:
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.app_render = self.callstack.app_render
+        self.input_manager = self.callstack.input_manager
+        self.path_manager = self.callstack.path_manager
+        self.search = self.callstack.search_manager
+        self.system_manager = self.callstack.system_manager
 
     def root_directory_detector(self, root_path: Path, current_path: Path) -> bool:
         """

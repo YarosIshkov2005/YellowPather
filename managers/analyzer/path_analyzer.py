@@ -4,21 +4,25 @@ from pathlib import Path
 from typing import List
 
 class PathAnalyzer:
-    def __init__(self, root, app_gui, app_state, app_perms, secure_state, search, select_position, app_render, button_state, path_manager, catalog_detector, command_parser, secure_manager, mdefs) -> None:
-        self.root = root
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.app_perms = app_perms
-        self.secure_state = secure_state
-        self.search = search
-        self.select_position = select_position
-        self.app_render = app_render
-        self.button_state = button_state
-        self.path_manager = path_manager
-        self.catalog_detector = catalog_detector
-        self.command_parser = command_parser
-        self.secure_manager = secure_manager
-        self.mdefs = mdefs
+    def __init__(self, globals, callstack) -> None:
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.app_perms = self.callstack.app_perms
+        self.app_render = self.callstack.app_render
+        self.button_state = self.callstack.button_state
+        self.command_parser = self.callstack.command_parser
+        self.catalog_detector = self.callstack.catalog_detector
+        self.mdefs = self.callstack.framework
+        self.path_manager = self.callstack.path_manager
+        self.search = self.callstack.search_manager
+        self.secure_state = self.callstack.secure_state
+        self.secure_manager = self.callstack.secure_manager
+        self.select_position = self.callstack.select_position
+        self.reset = self.callstack.reset
 
         self.points: List[str] = []
 
@@ -158,6 +162,7 @@ class PathAnalyzer:
             if not self.app_state.is_recursive_search:
                 self.app_state.is_recursive_search = True
 
+            self.button_state.index = 0
             self.button_state.control_select_button()
 
             self.button_state.control_back_button()
@@ -165,6 +170,7 @@ class PathAnalyzer:
 
             self.button_state.control_settings_button()
 
+            self.app_render.index = 0
             self.app_render.update_select_window()
             return True
         return False

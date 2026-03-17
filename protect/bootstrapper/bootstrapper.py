@@ -4,12 +4,12 @@ from pathlib import Path
 from typing import List
 
 class Bootstrapper:
-    def __init__(self, root, notification_window, pointer, path_manager, settings_window, search, select_state, app_render) -> None:
+    def __init__(self, root, notification_window, pointer, path_manager, callbacks, search, select_state, app_render) -> None:
         self.root = root
         self.notification_window = notification_window
         self.pointer = pointer
         self.path_manager = path_manager
-        self.settings_window = settings_window
+        self.callbacks = callbacks
         self.search = search
         self.select_state = select_state
         self.app_render = app_render
@@ -27,7 +27,7 @@ class Bootstrapper:
             )
             self.notification_window.notification_window.protocol(
                 'WM_DELETE_WINDOW', self.notification_window.return_focus(
-                    self.settings_window))
+                    self.callbacks['settings']))
             return
 
         if create_type == 'catalog':
@@ -48,7 +48,7 @@ class Bootstrapper:
         )
         self.notification_window.notification_window.protocol(
             'WM_DELETE_WINDOW', self.notification_window.return_focus(
-                self.settings_window))
+                self.callbacks['settings']))
 
         if len(short_names) == 0:
             self.select_state.index_list.append(0)

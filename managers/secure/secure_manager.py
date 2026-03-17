@@ -13,15 +13,18 @@ class IsAnAttempt(Enum):
 
 class SecureManager:
     """It prevents users from opening system directories without administrator priveleges."""
-    def __init__(self, root, counters, os_system, app_gui, app_state, button_state, secure_state, system) -> None:
-        self.root = root
-        self.counters = counters
-        self.os_system = os_system
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.button_state = button_state
-        self.secure_state = secure_state
-        self.system = system
+    def __init__(self, globals, callstack) -> None:
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.button_state = self.callstack.button_state
+        self.counters = self.globals['counters']
+        self.os_system = self.callstack.os_system
+        self.system = self.globals['system']
+        self.secure_state = self.callstack.secure_state
 
         self.PARENT_CATALOG: Optional[Path] = Path(__file__).parents[1]
         self.ROOT_CATALOG: Optional[Path] = Path(__file__).parents[2]
