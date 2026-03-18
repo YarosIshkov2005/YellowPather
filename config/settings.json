@@ -6,7 +6,7 @@
     "states": {
         "create": "Folder",
         "sorting": "Standart",
-        "protect": "Changed",
+        "protect": "Protected",
         "insert": "Don't insert"
     }
 }
