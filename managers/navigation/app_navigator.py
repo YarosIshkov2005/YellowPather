@@ -4,25 +4,29 @@ import tkinter as tk
 from tkinter.messagebox import showerror
 
 class AppNavigatorCore:
-    def __init__(self, root, counters, app_gui, app_state, search, select_state, button_state, mdefs, select_position, secure_manager, app_render, app_perms, path_manager, input_manager, catalog_detector, path_analyzer):
-        self.root = root
-        self.counters = counters
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.search = search
-        self.select_state = select_state
-        self.button_state = button_state
-        self.mdefs = mdefs
-        self.select_position = select_position
-        self.secure_manager = secure_manager
-        self.app_render = app_render
-        self.app_perms = app_perms
-        self.path_manager = path_manager
-        self.input_manager = input_manager
-        self.catalog_detector = catalog_detector
-        self.path_analyzer = path_analyzer
+    def __init__(self, globals, callstack):
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.app_perms = self.callstack.app_perms
+        self.app_render = self.callstack.app_render
+        self.button_state = self.callstack.button_state
+        self.counters = self.globals['counters']
+        self.catalog_detector = self.callstack.catalog_detector
+        self.input_manager = self.callstack.input_manager
+        self.path_manager = self.callstack.path_manager
+        self.path_analyzer = self.callstack.path_analyzer
+        self.mdefs = self.callstack.framework
+        self.search = self.callstack.search_manager
+        self.select_state = self.callstack.select_state
+        self.secure_manager = self.callstack.secure_manager
+        self.select_position = self.callstack.select_position
 
         self.index: int = 0
+        self.resource_index: int = self.app_render.current_index
 
     def marker_up(self):
         """Moves the selector up one item."""
@@ -37,8 +41,10 @@ class AppNavigatorCore:
         else:
             return
 
+        navigation_path = ''
         absolute_path = self.path_manager.abs_paths[self.index]
-        navigation_path = str(absolute_path.relative_to(self.path_manager.root_path))
+        if self.app_state.insert_resource_name:
+            navigation_path = str(absolute_path.relative_to(self.path_manager.root_path))
 
         self.path_manager.input_path = str(absolute_path)
         self.path_manager.selected_path = None
@@ -56,7 +62,7 @@ class AppNavigatorCore:
         self.app_gui.path_entry.xview_moveto(1.0)
         self.app_gui.path_entry.focus()
 
-        if absolute_path.is_dir():
+        if absolute_path.is_dir() and self.app_state.insert_resource_name:
             self.app_render.add_slash(absolute_path)
 
         self.app_gui.select_window.see(self.index)
@@ -69,6 +75,8 @@ class AppNavigatorCore:
         self.select_state.pop_back_point()
         self.select_state.current_select()
         self.select_state.add_next_point()
+
+        self.app_render.index = self.index
 
     def marker_select(self, event=None):
         """Highlights or removes the selected item: Select/Drop."""
@@ -102,8 +110,10 @@ class AppNavigatorCore:
         else:
             return
 
+        navigation_path = ''
         absolute_path = self.path_manager.abs_paths[self.index]
-        navigation_path = str(absolute_path.relative_to(self.path_manager.root_path))
+        if self.app_state.insert_resource_name:
+            navigation_path = str(absolute_path.relative_to(self.path_manager.root_path))
 
         self.path_manager.input_path = str(absolute_path)
         self.path_manager.selected_path = None
@@ -119,7 +129,7 @@ class AppNavigatorCore:
         self.app_gui.path_entry.delete(self.counters['start_position'], tk.END)
         self.app_gui.path_entry.insert(self.counters['start_position'], navigation_path)
 
-        if absolute_path.is_dir():
+        if absolute_path.is_dir() and self.app_state.insert_resource_name:
             self.app_render.add_slash(absolute_path)
 
         self.app_gui.select_window.see(self.index)
@@ -136,6 +146,8 @@ class AppNavigatorCore:
         self.select_state.current_select()
         self.select_state.add_next_point()
 
+        self.app_render.index = self.index
+
     def select_path(self, event=None):
         selected_incide = self.app_gui.select_window.curselection()
         if selected_incide:
@@ -146,8 +158,10 @@ class AppNavigatorCore:
         self.select_position.selected_index = self.index
         self.select_position.select_position()
 
+        navigation_path = ''
         absolute_path = self.path_manager.abs_paths[self.index]
-        navigation_path = str(absolute_path.relative_to(self.path_manager.root_path))
+        if self.app_state.insert_resource_name:
+            navigation_path = str(absolute_path.relative_to(self.path_manager.root_path))
 
         self.path_manager.input_path = str(absolute_path)
         self.path_manager.selected_path = None
@@ -163,7 +177,7 @@ class AppNavigatorCore:
         self.app_gui.path_entry.delete(self.counters['start_position'], tk.END)
         self.app_gui.path_entry.insert(self.counters['start_position'], navigation_path)
 
-        if absolute_path.is_dir():
+        if absolute_path.is_dir() and self.app_state.insert_resource_name:
             self.app_render.add_slash(absolute_path)
 
         self.app_gui.select_window.see(self.index)
@@ -180,9 +194,13 @@ class AppNavigatorCore:
         self.select_state.current_select()
         self.select_state.add_next_point()
 
+        self.app_render.index = self.index
+
     def current_index(self):
+        self.resource_index = self.index + 1
         elements_count = self.app_render.elements_count
-        self.app_gui.current_label.config(text=f'Element: {self.index + 1}/{elements_count}')
+        self.app_gui.current_label.config(
+            text=f'Element: {self.resource_index}/{elements_count}')
 
     def reset_path(self) -> None:
         """Resets current path to root path."""
@@ -214,11 +232,22 @@ class AppNavigatorCore:
             self.button_state.update_search_state()
             return
 
+        if self.app_state.is_parser_active:
+            self.app_gui.path_entry.delete(self.counters['root_position'], tk.END)
+            self.app_gui.path_entry.focus()
+            return
+
         if self.catalog_detector.root_directory_detector(
             self.path_manager.root_path, self.path_manager.absolute_path):
             self.app_gui.path_entry.focus()
             self.button_state.update_search_state()
             return
+
+        if not self.app_state.reset_button_active:
+            self.app_state.reset_button_active = True
+
+        if self.app_state.is_recursive_search:
+            self.app_state.is_recursive_search = False
 
         self.mdefs._mdefs_framework.mdefs_pointer('clear')
         self.mdefs._mdefs_framework.mdefs_pointer('root')
@@ -259,9 +288,6 @@ class AppNavigatorCore:
         if absolute_path.is_dir():
             self.app_render.add_slash(absolute_path)
 
-        self.app_gui.select_window.see(self.index)
-        self.app_gui.select_window.selection_set(self.index)
-
         self.app_gui.select_button.config(text='Select')
         self.app_gui.select_window.config(selectbackground='blue')
 
@@ -291,6 +317,9 @@ class AppNavigatorCore:
                 self.app_gui.path_entry.delete(self.counters['root_position'], tk.END)
                 self.button_state.update_search_state()
                 return
+
+            if not self.app_state.back_button_active:
+                self.app_state.back_button_active = True
 
             if self.app_state.is_search_executed:
                 self.reset_path()
@@ -343,6 +372,9 @@ class AppNavigatorCore:
             if not self.app_perms.check_permission(absolute_path):
                 return
 
+            if not self.app_state.next_button_active:
+                self.app_state.next_button_active = True
+
             self.mdefs._mdefs_framework.mdefs_pointer('add')
 
             parent_path = self.path_manager.root_path
@@ -362,13 +394,13 @@ class AppNavigatorCore:
             self.path_manager.current_path = None
             self.search.add_paths()
 
-            self.button_state.index = self.index
-
             self.select_state.current_position = self.index
             self.select_state.current_select()
             self.select_state.add_next_point()
 
             self.index = 0
+
+            self.button_state.index = self.index
 
             self.app_render.index = self.index
             self.app_render.update_select_window()
