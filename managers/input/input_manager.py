@@ -3,14 +3,17 @@ from tkinter.messagebox import showerror
 from pathlib import Path
 
 class InputManager:
-    def __init__(self, root, app_gui, app_state, secure_state, secure_manager, app_perms, mdefs) -> None:
-        self.root = root
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.secure_state = secure_state
-        self.secure_manager = secure_manager
-        self.app_perms = app_perms
-        self.mdefs = mdefs
+    def __init__(self, globals, callstack) -> None:
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.app_perms = self.callstack.app_perms
+        self.mdefs = self.callstack.framework
+        self.secure_state = self.callstack.secure_state
+        self.secure_manager = self.callstack.secure_manager
 
         self.user_path: str = ''
 

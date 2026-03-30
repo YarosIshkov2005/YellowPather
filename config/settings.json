@@ -1,0 +1,12 @@
+{
+    "counters": {
+        "create_position": 0,
+        "sort_position": 0
+    },
+    "states": {
+        "create": "Folder",
+        "sorting": "Standart",
+        "protect": "Protected",
+        "insert": "Don't insert"
+    }
+}

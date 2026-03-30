@@ -1,50 +1,66 @@
 import tkinter as tk
-from tkinter import ttk
 
 class AppGUI:
-   def __init__(self, root):
-       self.root = root
+   def __init__(self, globals):
+        self.globals = globals
+        self.root = self.globals['root']
       
    def widgets_container(self) -> None:
         """Creates container frames for UI widgets."""
-        self.frame_search = ttk.Frame(self.root)
-        self.frame_search.pack(anchor='center')
+        self.frame_search = tk.Frame(self.root, bg='#DBDBDB')
+        self.frame_search.pack(padx=10, pady=10)
         
-        self.frame_scroll = ttk.Frame(self.root)
-        self.frame_scroll.pack(anchor='center')
+        self.frame_scroll = tk.Frame(self.root, bg='#DBDBDB')
+        self.frame_scroll.pack(padx=10, pady=10)
 
-        self.frame_select = ttk.Frame(self.root)
-        self.frame_select.pack(anchor='center')
+        self.frame_select = tk.Frame(self.root, bg='#DBDBDB')
+        self.frame_select.pack(padx=10, pady=10)
 
-        self.frame_elements = ttk.Frame(self.root)
-        self.frame_elements.pack(anchor='center')
-
-        self.frame_functions = ttk.Frame(self.root)
-        self.frame_functions.pack(anchor='center')
+        self.frame_elements = tk.Frame(self.root, bg='#DBDBDB')
+        self.frame_elements.pack(padx=10, pady=10)
 
    def create_interface(self) -> None:
         """Creates user interface with all widgets."""
         # Search panel
-        self.path_label = ttk.Label(
+        self.path_label = tk.Label(
             self.frame_search,
             text='Path:',
-            font=('Helvetica', 10, 'bold')
+            font=('Helvetica', 10, 'bold'),
+            bg='#DBDBDB',
         )
         self.path_label.grid(row=0, column=0, padx=10, pady=10)
        
-        self.path_entry = ttk.Entry(self.frame_search)
+        self.path_entry = tk.Entry(
+            self.frame_search, 
+            width=75, 
+            bd=0, 
+            highlightcolor='#A2A2A2', 
+            highlightthickness=1,
+            font=('Arial', 9, 'italic')
+        )
         self.path_entry.grid(row=0, column=1, padx=10, pady=10)
        
-        self.search_button = ttk.Button(
+        self.search_button = tk.Button(
             self.frame_search,
             text='Search',
-            state='disable'
+            state='disabled',
+            width=10,
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
         self.search_button.grid(row=0, column=2, padx=10, pady=10)
        
-        self.update_button = ttk.Button(
+        self.update_button = tk.Button(
             self.frame_search,
-            text='Update'
+            text='Update',
+            state='disabled',
+            width=10,
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
         self.update_button.grid(row=1, column=0, padx=10, pady=10)
        
@@ -58,41 +74,65 @@ class AppGUI:
         )
         self.path_entry['xscrollcommand'] = self.scrollbar_entry.set
        
-        self.reset_button = ttk.Button(
+        self.reset_button = tk.Button(
             self.frame_search,
-            text='Reset'
+            text='Reset',
+            width=10,
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
         self.reset_button.grid(row=1, column=2, padx=10, pady=10)
        
-        self.up_button = ttk.Button(
+        self.up_button = tk.Button(
             self.frame_scroll,
-            text='<',
-            width=5,
-            state='disabled'
+            text='Up',
+            width=10,
+            state='disabled',
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
-        self.up_button.grid(row=0, column=0, padx=10, pady=10)
+        self.up_button.grid(row=0, column=3, padx=10, pady=10)
        
-        self.select_button = ttk.Button(
+        self.select_button = tk.Button(
             self.frame_scroll,
             text='Select',
-            state='disabled'
+            state='disabled',
+            width=10,
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
-        self.select_button.grid(row=0, column=1, padx=10, pady=10)
+        self.select_button.grid(row=0, column=4, padx=10, pady=10)
        
-        self.down_button = ttk.Button(
+        self.down_button = tk.Button(
             self.frame_scroll,
-            text='>',
-            width=5,
-            state='disabled'
+            text='Down',
+            width=10,
+            state='disabled',
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
-        self.down_button.grid(row=0, column=2, padx=10, pady=10)
+        self.down_button.grid(row=0, column=5, padx=10, pady=10)
        
         # Main list window
         self.select_window = tk.Listbox(
             self.frame_select,
-            selectmode='single',
+            selectmode='browse',
+            background='SystemButtonFace',
             selectbackground='blue',
-            width=35
+            width=110,
+            height=15,
+            bd=0,
+            highlightthickness=0,
+            cursor='hand2',
+            activestyle='none'
         )
         self.select_window.grid(row=0, column=0, padx=10, pady=10)
        
@@ -106,38 +146,55 @@ class AppGUI:
         )
         self.select_window['yscrollcommand'] = self.scrollbar_window.set
 
-        self.elements_label = ttk.Label(
+        self.elements_label = tk.Label(
             self.frame_elements,
             text='',
-            font=('Helvetica', 10, 'bold')
+            font=('Helvetica', 10, 'bold'),
+            bg='#DBDBDB'
         )
         self.elements_label.grid(row=0, column=0, padx=10, pady=10)
 
-        self.current_label = ttk.Label(
+        self.current_label = tk.Label(
             self.frame_elements,
             text='',
-            font=('Helvetica', 10, 'bold')
+            font=('Helvetica', 10, 'bold'),
+            bg='#DBDBDB'
         )
         self.current_label.grid(row=0, column=1, padx=10, pady=10)
        
         # Control panel
-        self.back_button = ttk.Button(
-            self.frame_functions,
+        self.back_button = tk.Button(
+            self.frame_scroll,
             text='Back',
-            state='disabled'
+            state='disabled',
+            width=10,
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
         self.back_button.grid(row=0, column=0, padx=10, pady=10)
        
-        self.next_button = ttk.Button(
-            self.frame_functions,
+        self.next_button = tk.Button(
+            self.frame_scroll,
             text='Next',
-            state='disabled'
+            state='disabled',
+            width=10,
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
         self.next_button.grid(row=0, column=1, padx=10, pady=10)
        
-        self.settings_button = ttk.Button(
-            self.frame_functions,
+        self.settings_button = tk.Button(
+            self.frame_scroll,
             text='Settings',
-            state='disabled'
+            state='disabled',
+            width=10,
+            bd=0,
+            bg='#C2C2C2',
+            activebackground='#C2C2C2',
+            cursor='hand2'
         )
         self.settings_button.grid(row=0, column=2, padx=10, pady=10)

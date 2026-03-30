@@ -3,20 +3,24 @@ import os
 import tkinter as tk
 
 from pathlib import Path
+from typing import Callable
 
 class AppRenderCore:
-    def __init__(self, root, counters, app_gui, app_state, select_position, select_state, button_state, path_manager):
-        self.root = root
-        self.counters = counters
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.select_position = select_position
-        self.select_state = select_state
-        self.button_state = button_state
-        self.path_manager = path_manager
+    def __init__(self, globals, callstack):
+        self.globals = globals
+        self.callstack = callstack
 
-        self.index: int = 0
-        self.elements_count: int = 0
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.button_state = self.callstack.button_state
+        self.counters = self.globals['insert']
+        self.path_manager = self.callstack.path_manager
+        self.states = self.globals['states']
+        self.select_state = self.callstack.select_state
+        self.select_position = self.callstack.select_position
+
+        self.callback: Callable = None
 
     def protect_root_delete(self, event=None) -> None:
         """
@@ -29,7 +33,8 @@ class AppRenderCore:
             'break' if deletion in protected area, else None.
         """
         current_position = self.app_gui.path_entry.index(tk.INSERT)
-        if (current_position <= self.counters['root_position'] and event.keysym in ['BackSpace', 'Delete']):
+        if (current_position <= self.counters['root_position'] 
+            and event.keysym in ['BackSpace', 'Delete']):
             return 'break'
 
     def protect_root_path(self, event=None) -> None:
@@ -48,101 +53,41 @@ class AppRenderCore:
         """Updates Listbox content with current directory items."""
         self.protect_root_path()
 
+        if not self.app_state.is_recursive_search:
+            self.callback(self.path_manager.abs_paths, 
+                self.path_manager.root_path, self.path_manager.resource_path, 
+                    True, self.states['sorting'])
+
         self.app_gui.select_window.delete(0, tk.END)
         self.app_gui.select_window.insert(0, *self.path_manager.short_names)
 
-        self.element_count()
-
-        if self.update_position():
-            return
-
-        self.app_gui.select_button.config(text='Select')
-        self.app_gui.select_window.config(selectbackground='blue')
-        
-        self.app_gui.path_entry.xview_moveto(1.0)
-        self.app_gui.path_entry.focus()
-
-        self.button_state.control_up_button()
-        self.button_state.control_select_button()
-        self.button_state.control_down_button()
-
-        self.button_state.control_back_button()
-        self.button_state.control_next_button()
-        self.button_state.control_settings_button()
-        self.button_state.update_search_state()
-
-    def update_position(self):
-        if len(self.path_manager.short_names) >= 1:
-            self.app_gui.select_window.see(self.index)
-            self.app_gui.select_window.selection_set(self.index)
-
-            self.select_position.selected_index = self.index
-            self.select_position.select_position()
-
-            if self.app_state.block_when_update:
-                self.app_state.block_when_update = False
-                return True
-            return False
-
-    def element_count(self):
-        self.elements_count = len(self.path_manager.short_names)
-        self.app_gui.elements_label.config(text=f'Elements: {self.elements_count}')
-        self.app_gui.current_label.config(text=f'Element: {self.index + 1}/{self.elements_count}')
-
-    def insert_root_path(self) -> None:
-        """Inserts root path into entry field."""
-        if self.app_state.root_path_inserted:
-            return
-
-        str_root_path = str(self.path_manager.root_path)
-
-        navigation_path = ''
-        if str_root_path == '/' or str_root_path.endswith(os.sep):
-            navigation_path = str(self.path_manager.root_path)
-        else:
-            navigation_path = str(self.path_manager.root_path)
-            
-        self.app_gui.select_window.see(self.index)
-        self.app_gui.select_window.selection_set(self.index)
-
-        self.app_gui.path_entry.insert(0, navigation_path)
-        self.app_gui.path_entry.focus()
-
-        self.add_slash(navigation_path)
-
-        self.counters['root_position'] = self.app_gui.path_entry.index(tk.INSERT)
-        self.counters['start_position'] = self.app_gui.path_entry.index(tk.INSERT)
-
-        self.select_state.current_select()
-        self.select_state.add_next_point()
-
-        if not self.app_state.root_path_inserted:
-            self.app_state.root_path_inserted = True
-
-        self.path_manager.current_path = self.path_manager.absolute_path
-
-    def canonize_entered_path(self, canonize_path: Path) -> None:
+    def canonize_entered_path(self, input_path: Path = None) -> None:
         """Normalizes entered path relative to root."""
-        parts_path = canonize_path.parts
-        parent_path = self.path_manager.root_path
+        canonize_path = (Path(input_path) 
+            if isinstance(input_path, str) else input_path)
+        path_parts = canonize_path.parts
+        navigation_path = Path('')
 
-        for part in parts_path:
-            parent_path /= part
+        for part in path_parts:
+            navigation_path /= part
 
-        relative_path = parent_path.relative_to(self.path_manager.root_path)
-        navigation_path = relative_path / self.select_position.relative_path
+        navigation_path = str(navigation_path)
+        if navigation_path == '.':
+            navigation_path = ''
 
         self.app_gui.path_entry.delete(self.counters['root_position'], tk.END)
         self.app_gui.path_entry.insert(self.counters['root_position'], navigation_path)
         self.app_gui.path_entry.xview_moveto(1.0)
         self.app_gui.path_entry.focus()
 
+        if str(canonize_path) == '.':
+            return
+
         root_path = self.path_manager.root_path
         absolute_path = root_path / navigation_path
-        self.path_manager.input_path = absolute_path
 
         if absolute_path.is_dir():
-            self.add_slash(navigation_path)
+            self.add_slash(absolute_path)
 
     def add_slash(self, current_path: str) -> None:
         """Adds trailing slash to directory paths."""
@@ -151,7 +96,7 @@ class AppRenderCore:
         if target_path.is_file():
             return
 
-        if str(self.path_manager.input_path).endswith(os.sep):
+        if self.path_manager.input_path.endswith(os.sep):
             return
 
         self.app_gui.path_entry.insert(tk.END, os.sep)
@@ -168,9 +113,11 @@ class AppRenderCore:
         Returns:
             Truncated name with ellipsis if needed.
         """
-        if len(name) <= max_length:
-            return name
+        str_name = str(name) if isinstance(name, Path) else name
+
+        if len(str_name) <= max_length:
+            return str_name
 
         min_visible = 10
         truncate_at = max(min_visible, max_length - 3)
-        return name[:truncate_at] + '...'
+        return str_name[:truncate_at] + '...'

@@ -1,30 +1,19 @@
-from typing import List
-
 class SelectPosition:
-    def __init__(self, app_gui) -> None:
-        self.app_gui = app_gui
-
-        self.index: int = 0
-        self.reset: int = 0
-        self.current_position: int = 0
-        self.index_list: List[str] = []
-
-    def current_select(self):
-        self.index = self.current_position
+    def __init__(self, globals) -> None:
+        self.globals = globals
 
     def pop_back_point(self):
-        if self.index_list:
-            self.index_list.pop()
+        if len(self.globals['select']['points']) == 1:
+            return self.globals['select']['points'][0]
 
-            if len(self.index_list) >= 1:
-                self.current_position = self.index_list[-1]
+        if self.globals['select']['points']:
+            self.globals['select']['points'].pop()
+            return self.globals['select']['points'][-1]
 
-    def add_next_point(self):
-        self.current_position = self.reset
-        self.index_list.append(self.index)
+    def add_next_point(self, index: int = 0):
+        self.globals['select']['points'].append(index)
 
     def reset_points(self):
-        if self.index_list:
-            self.index_list.clear()
-            self.current_select()
-            self.add_next_point()
+        if self.globals['select']['points']:
+            self.globals['select']['points'].clear()
+            self.add_next_point(0)

@@ -1,14 +1,17 @@
 class MainEvents:
-    def __init__(self, root, app_gui, app_navigator, app_render, button_state, keyboard, path_analyzer, settings, update_gui) -> None:
-        self.root = root
-        self.app_gui = app_gui
-        self.app_navigator = app_navigator
-        self.app_render = app_render
-        self.button_state = button_state
-        self.keyboard = keyboard
-        self.path_analyzer = path_analyzer
-        self.settings = settings
-        self.update_gui = update_gui
+    def __init__(self, globals, callstack) -> None:
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_render = self.callstack.app_render
+        self.app_navigator = self.callstack.app_navigator
+        self.button_state = self.callstack.button_state
+        self.keyboard = self.callstack.keyboard
+        self.path_analyzer = self.callstack.path_analyzer
+        self.settings = self.callstack.settings_core
+        self.update_gui = self.callstack.update_gui
 
     def bind_events(self):
        self.root.bind('<Return>', self.keyboard.search_path_callback)

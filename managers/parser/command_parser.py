@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter.messagebox import showerror
+from tkinter.messagebox import showinfo, showerror
 
 import os
 
@@ -7,24 +7,29 @@ from typing import Optional
 from pathlib import Path
 
 class CommandParserCore:
-    def __init__(self, root, counters, select_position, app_render, parser, app_gui, app_state, search, button_state, path_manager, commands):
-        self.root = root
-        self.counters = counters
-        self.select_position = select_position
-        self.app_render = app_render
-        self.parser = parser
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.search = search
-        self.button_state = button_state
-        self.path_manager = path_manager
-        self.COMMANDS = commands if commands is not None else ()
+    def __init__(self, globals, callstack):
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.app_render = self.callstack.app_render
+        self.button_state = self.callstack.button_state
+        self.counters = self.globals['counters']
+        self.COMMANDS = self.globals['commands']
+        self.canonizer = self.callstack.path_canonize
+        self.mdefs = self.callstack.framework
+        self.insert_manager = self.callstack.insert_manager
+        self.parser = self.callstack.parser_core
+        self.path_manager = self.callstack.path_manager
+        self.select_position = self.callstack.select_position
 
         self.parser_name = 'cmd:/'
 
     def change_mode(self, string_path: str) -> bool:
         """
-        Handles mode switching between cmd:0 and cmd:1.
+        Handles mode switching between cmd-parser:on and cmd-parser:off.
 
         Args:
             string_path: Current path string.
@@ -37,6 +42,9 @@ class CommandParserCore:
             if string_path not in self.COMMANDS:
                 self.path_manager.original_path = Path(string_path).parent
 
+        if self.is_parser_enabled(cmd):
+            return
+
         if not self.app_state.is_parser_active:
             if self.program_mode(cmd):
                 self.app_state.is_string_active = True
@@ -44,15 +52,14 @@ class CommandParserCore:
         if self.app_state.is_string_active:
             if cmd not in self.COMMANDS:
                 parse_result = self.parser.call_detector(
-                    cmd, self.path_manager.current_path, self.path_manager.abs_paths
+                    cmd, self.path_manager.resource_path, self.path_manager.abs_paths
                 )
                 execute_result = self.parser.call_executer(
                     parse_result
                 )
                 if execute_result:
                     self.path_manager.absolute_path = self.path_manager.original_path
-                    self.search.add_paths()
-                    self.app_render.update_select_window()
+                    self.canonizer.canonizer('render')
                 else:
                     if not self.app_state.hide_command_message:
                         showerror(
@@ -79,8 +86,24 @@ class CommandParserCore:
             True for cmd-parser:on mode, False for cmd-parser:off, None for other.
         """
         if cmd in self.COMMANDS:
-            return cmd == 'cmd-parser:on'
+            if cmd == 'cmd-parser:on':
+                return True
+            else:
+                return False
         return None
+
+    def is_parser_enabled(self, cmd: str):
+        if cmd == 'cmd-parser:on' and self.app_state.is_parser_active:
+            msg = f'{self.parser_name} has already been enabled'
+            showinfo(title='Message:', message=msg, parent=self.root)
+            self.app_gui.path_entry.focus()
+            return True
+        elif cmd == 'cmd-parser:off' and not self.app_state.is_parser_active:
+            msg = f'{self.parser_name} has already been disabled'
+            showinfo(title='Message:', message=msg, parent=self.root)
+            self.app_gui.path_entry.focus()
+            return True
+        return False
 
     def parser_enable(self, cmd: str) -> bool:
         """
@@ -98,31 +121,16 @@ class CommandParserCore:
                     self.app_state.is_parser_active = True
 
                 if not self.app_state.abs_path_reset:
+                    self.path_manager.input_path = str(self.path_manager.original_path)
+                    self.path_manager.absolute_path = self.path_manager.original_path
                     self.app_state.abs_path_reset = True
 
-                self.app_gui.path_entry.delete(0, tk.END)
-                self.app_gui.path_entry.insert(0, self.parser_name)
                 self.app_gui.path_entry.config(foreground='#0000FF')
-                self.app_gui.path_entry.focus()
 
-                self.counters['root_position'] = self.app_gui.path_entry.index(tk.INSERT)
-                self.counters['start_position'] = self.app_gui.path_entry.index(tk.INSERT)
+                self.insert_manager.insert_path(self.parser_name, 0, False)
+                self.insert_manager.set_positions()
 
-                self.path_manager.absolute_path = self.path_manager.original_path
-
-                self.search.add_paths()
-                self.app_render.update_select_window()
-                self.button_state.update_search_state()
-
-                self.select_position.select_position()
-                self.path_manager.current_path = self.path_manager.absolute_path / self.select_position.relative_path
-
-                self.button_state.control_select_button()
-
-                self.button_state.control_back_button()
-                self.button_state.control_next_button()
-
-                self.button_state.control_settings_button()
+                self.canonizer.canonizer('render')
                 return True
         else:
             if cmd == 'cmd-parser:off':
@@ -135,34 +143,10 @@ class CommandParserCore:
                     self.path_manager.absolute_path = self.path_manager.original_path
                     self.app_state.abs_path_reset = False
 
-                navigation_path = str(self.path_manager.root_path)
-                self.app_gui.path_entry.delete(0, tk.END)
-                self.app_gui.path_entry.insert(0, navigation_path)
                 self.app_gui.path_entry.config(foreground='#000000')
-                self.app_gui.path_entry.focus()
 
-                self.app_render.add_slash(navigation_path)
+                self.insert_manager.insert_path(self.path_manager.root_path, 0, True)
+                self.insert_manager.set_positions()
 
-                self.counters['root_position'] = self.app_gui.path_entry.index(tk.INSERT)
-                self.counters['start_position'] = self.app_gui.path_entry.index(tk.INSERT)
-
-                if not self.path_manager.original_path.samefile(self.path_manager.root_path):
-                    self.app_render.canonize_entered_path(self.path_manager.original_path)
-
-                self.search.add_paths()
-                self.app_render.update_select_window()
-                self.button_state.update_search_state()
-
-                self.select_position.select_position()
-                self.path_manager.current_path = self.path_manager.absolute_path / self.select_position.relative_path
-
-                if self.app_state.is_recursive_search:
-                    self.app_state.is_recursive_search = False
-
-                self.button_state.control_select_button()
-
-                self.button_state.control_back_button()
-                self.button_state.control_next_button()
-
-                self.button_state.control_settings_button()
+                self.canonizer.canonizer('render')
                 return False

@@ -1,11 +1,13 @@
 class PressControllerCore:
-    def __init__(self, path_analyzer, app_navigator, update_gui):
-        self.path_analyzer = path_analyzer
-        self.app_navigator = app_navigator
-        self.update_gui = update_gui
+    def __init__(self, callstack):
+        self.callstack = callstack
+
+        self.app_navigator = self.callstack.app_navigator
+        self.path_analyzer = self.callstack.path_analyzer
+        self.update_gui = self.callstack.update_gui
 
     def search_path_callback(self, event=None):
-        self.path_analyzer.search_path()
+        self.app_navigator.directory_down()
 
     def reset_path_callback(self, event=None):
         self.app_navigator.reset_path()

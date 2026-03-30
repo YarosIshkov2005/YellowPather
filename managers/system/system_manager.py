@@ -4,17 +4,20 @@ from pathlib import Path
 from typing import Optional
 
 class SystemManager:
-    def __init__(self, root, settings, app_gui, app_state, app_perms, secure_state, system_paths, os_system, path_manager, secure_manager) -> None:
-        self.root = root
-        self.settings = settings
-        self.app_gui = app_gui
-        self.app_state = app_state
-        self.app_perms = app_perms
-        self.secure_state = secure_state
-        self.system_paths = system_paths
-        self.os_system = os_system
-        self.path_manager = path_manager
-        self.secure_manager = secure_manager
+    def __init__(self, globals, callstack) -> None:
+        self.globals = globals
+        self.callstack = callstack
+
+        self.root = self.globals['root']
+        self.app_gui = self.callstack.app_gui
+        self.app_state = self.callstack.app_state
+        self.app_perms = self.callstack.app_perms
+        self.path_manager = self.callstack.path_manager
+        self.settings = self.callstack.settings_core
+        self.secure_state = self.callstack.secure_state
+        self.system_paths = self.globals['system_paths']
+        self.secure_manager = self.callstack.secure_manager
+        self.os_system = self.callstack.os_system
 
         self.root_path: Optional[Path] = None
         self.user_id: str = '0'

@@ -26,6 +26,17 @@ class AppState:
         self.is_search_executed: bool = False
         self.block_when_update: bool = False
         self.search_not_executed: bool = False
+        self.reset_button_active: bool = False
+        self.back_button_active: bool = False
+        self.next_button_active: bool = False
+        self.search_protect_enabled: bool = True
+        self.insert_resource_name: bool = False
+        self.is_root_directory: bool = True
+        self.initial_search_now: bool = True
+        self.toggle_button_active: bool = False
+        self.search_button_active: bool = False
+        self.settings_button_active: bool = False
+        self.is_search_active: bool = False
 
 
 class PermissionState:

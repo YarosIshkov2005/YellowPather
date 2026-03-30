@@ -1,4 +1,3 @@
-import json
 import traceback
 import tkinter as tk
 from tkinter.messagebox import showinfo, showerror, askyesno
@@ -8,13 +7,15 @@ from charset_normalizer import from_bytes
 from PIL import Image, ImageTk
 
 class FileRedactorCore:
-    def __init__(self, root, app_gui, search, settings, path_manager, app_render) -> None:
-        self.root = root
-        self.app_gui = app_gui
-        self.search = search
-        self.settings = settings
-        self.path_manager = path_manager
-        self.app_render = app_render
+    def __init__(self, globals, redactor) -> None:
+        self.globals = globals
+        self.redactor = redactor
+
+        self.root = self.globals['root']
+        self.app_gui = self.redactor.app_gui
+        self.app_render = self.redactor.app_render
+        self.path_manager = self.redactor.path_manager
+        self.settings = self.redactor.settings
 
         self.settings_window = None
         self.redactor_window = None
@@ -24,7 +25,7 @@ class FileRedactorCore:
         self.file_path = None
         
         self.icon_paths = {}
-        self.file_extensions = {}
+        self.file_extensions = self.globals['extensions']
         
         self.ICON_FILES = {
             'Unknown': 'unknown_icon.png',
@@ -104,26 +105,22 @@ class FileRedactorCore:
             showerror(title='Error:', message=error_msg, parent=self.redactor_window)
         
     def set_icon_image(self):
-        extensions = {}
         try:
             icon_text = ''
             error_text = ''
             lang_name = ''
             encoding = ''
 
-            with open(self.file_extensions, 'r', encoding='utf-8') as file_extensions:
-                extensions = json.loads(file_extensions.read())
-
-            languages = extensions.get('languages', None)
+            languages = self.file_extensions.get('languages', None)
             if languages is None:
                 icon_text = '?'
                 error_text = 'Unknown'
                 
-            text_files = extensions.get('text', None)
+            text_files = self.file_extensions.get('text', None)
             if text_files is None:
                 error_text = 'Unknown'
                 
-            others = extensions.get('others', None)
+            others = self.file_extensions.get('others', None)
             if others is None:
                 error_text = 'Unknown'
                 
@@ -254,7 +251,6 @@ class FileRedactorCore:
                 if self.app_gui.select_button.cget('text') == 'Drop':
                     self.app_gui.select_button.config(text='Select')
 
-                self.search.add_paths()
                 self.app_render.update_select_window()
                 self.close_window()
                 return
@@ -282,7 +278,6 @@ class FileRedactorCore:
                 parent=self.redactor_window
             )
 
-            self.search.add_paths()
             self.app_render.update_select_window()
 
             self.path_manager.absolute_path = self.file_path.parent

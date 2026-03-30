@@ -12,8 +12,10 @@ from typing import Optional, List, Dict, Any
 class CommandExecuterCore:
     """Class of command executer."""
 
-    def __init__(self, root) -> None:
-        self.root = root
+    def __init__(self, globals) -> None:
+        self.globals = globals
+        
+        self.root = self.globals['root']
 
     def command_executer(
         self,
@@ -354,76 +356,64 @@ class CommandExecuterCore:
                   False on error
         """
         try:
-            if len(sources) != 1:
-                error_msg = (
-                    f"Rename operation requires exactly 1 source, "
-                    f"got {len(sources)}"
-                )
-                showerror(
-                    title='Yellow Pather Error 014:',
-                    message=error_msg,
-                    parent=self.root
-                )
-                return False
+            for source in sources:
+                source_path = os.path.join(root, source)
+                target_path = os.path.join(root, destination)
 
-            source = sources[0]
-            source_path = os.path.join(root, source)
-            target_path = os.path.join(root, destination)
+                if source_path not in paths:
+                    error_msg = (
+                        f"'{os.path.basename(source_path)}' "
+                        "not found"
+                    )
+                    showerror(
+                        title='Yellow Pather Error 009:',
+                        message=error_msg,
+                        parent=self.root
+                    )
+                    return False
 
-            if source_path not in paths:
-                error_msg = (
-                    f"'{os.path.basename(source_path)}' "
-                    "not found"
-                )
-                showerror(
-                    title='Yellow Pather Error 009:',
-                    message=error_msg,
-                    parent=self.root
-                )
-                return False
+                if source_path == target_path:
+                    error_msg = (
+                        f"Cannot rename from '{os.path.basename(source_path)}' "
+                        f"to same name '{os.path.basename(target_path)}'"
+                    )
+                    showerror(
+                        title='Yellow Pather Error 020:',
+                        message=error_msg,
+                        parent=self.root
+                    )
+                    return False
 
-            if source_path == target_path:
-                error_msg = (
-                    f"Cannot rename from '{os.path.basename(source_path)}' "
-                    f"to same name '{os.path.basename(target_path)}'"
-                )
-                showerror(
-                    title='Yellow Pather Error 020:',
-                    message=error_msg,
-                    parent=self.root
-                )
-                return False
-
-            try:
-                os.rename(source_path, target_path)
-                info_msg = (
-                    f"Renamed '{os.path.basename(source_path)}' "
-                    f"to '{os.path.basename(target_path)}'"
-                )
-                showinfo(
-                    title='Renamed',
-                    message=info_msg,
-                    parent=self.root
-                )
-                return True
-            except FileExistsError:
-                error_msg = (
-                    f"'{os.path.basename(target_path)}' "
-                    "already exists"
-                )
-                showerror(
-                    title='Yellow Pather Error 009:',
-                    message=error_msg,
-                    parent=self.root
-                )
-                return False
-            except Exception as e:
-                showerror(
-                    title='Yellow Pather Error 020:',
-                    message=f'{e}',
-                    parent=self.root
-                )
-                return False
+                try:
+                    os.rename(source_path, target_path)
+                    info_msg = (
+                        f"Renamed '{os.path.basename(source_path)}' "
+                        f"to '{os.path.basename(target_path)}'"
+                    )
+                    showinfo(
+                        title='Renamed',
+                        message=info_msg,
+                        parent=self.root
+                    )
+                    return True
+                except FileExistsError:
+                    error_msg = (
+                        f"'{os.path.basename(target_path)}' "
+                        "already exists"
+                    )
+                    showerror(
+                        title='Yellow Pather Error 009:',
+                        message=error_msg,
+                        parent=self.root
+                    )
+                    return False
+                except Exception as e:
+                    showerror(
+                        title='Yellow Pather Error 020:',
+                        message=f'{e}',
+                        parent=self.root
+                    )
+                    return False
         except Exception as e:
             showerror(
                 title='Yellow Pather Error 020:',
