@@ -1,11 +1,11 @@
 # README.md
 
-# Данный проект больше не поддерживается в силу поддержки новой Lite версии.
+# Данный проект больше не поддерживается в силу поддержки новой Lite версии https://github.com/YarosIshkov2005/YellowPather-Lite.git.
 
 # RU 🇷🇺:
 ## YellowPather версия 1.0.5 "Yellow Brick Road"
 
-Дорогие ностальгирующие по Windows 7! Сегодня я хочу представить вам свой первый по-настоящему сложный проект: файловый менеджер (проводник), который я написал всего за 2-3 месяца, используя простые библиотеки, такие как Tkinter, Pathlib, Platform и др., а также собственную систему защиты YPACMv1 (YellowPather Access Control Manager версия 1), ранее известную как MDEFS. Репозиторий проекта доступен по ссылке: https://github.com/YarosIshkov2005/YellowPather.git
+Дорогие друзья! Сегодня я хочу представить вам свой первый по-настоящему сложный проект: файловый менеджер (проводник), который я написал всего за 2-3 месяца, используя простые библиотеки, такие как Tkinter, Pathlib, Platform и др., а также собственную систему защиты YPACMv1 (YellowPather Access Control Manager версия 1), ранее известную как MDEFS. Репозиторий проекта доступен по ссылке: https://github.com/YarosIshkov2005/YellowPather.git
 
 📑 Это проект с открытым исходным кодом (Open Source), поэтому каждый может внести свои изменения, улучшения, исправления и т.д. Ярослав Ишков 2026 ❤️
 
@@ -20,7 +20,7 @@
 
 ### Что это за программа 🖥
 
-В этом проекте я попытался создать простой файловый проводник для Windows 7, который включает в себя следующие функции:
+В этом проекте я попытался создать простой файловый проводник для Windows/Linux/MacOS, который включает в себя следующие функции:
 
 **1. Рекурсивный поиск по расширению**
 
@@ -52,7 +52,7 @@
 > `cmd:/`
 > `cmd:/` — это префикс, сигнализирующий об успешной активации командной строки.
 
-**Команды:** В настоящее время доступны только 3 команды (в будущем планируется больше). Давайте рассмотрим синтаксис каждой:
+**Команды:** Всего доступны 3 команды. Давайте рассмотрим синтаксис каждой:
 
 *   `copy "источник" to "назначение"`
     *   **Что делает:** Копирует объект "источник" в папку "назначение", где "источник" — это путь к копируемому объекту, а "назначение" — путь к целевой папке.
@@ -163,7 +163,9 @@ P.S.: При желании вы также можете добавить Yellow
 # EN 🇬🇧:
 ## YellowPather version 1.0.5 "The Yellow Brick Road"
 
-Dear Windows 7 nostalgics! Today I want to present my first truly complex project: a file manager (explorer) that I wrote in just 2-3 months, using simple libraries like Tkinter, Pathlib, Platform, and others, as well as my own protection system YPACMv1 (YellowPather Access Control Manager version 1), formerly known as MDEFS. The project repository is available at the link: https://github.com/YarosIshkov2005/YellowPather.git
+# This project is not supported anymore. New version: https://github.com/YarosIshkov2005/YellowPather-Lite.git
+
+Dear friends! Today I want to present my first truly complex project: a file manager (explorer) that I wrote in just 2-3 months, using simple libraries like Tkinter, Pathlib, Platform, and others, as well as my own protection system YPACMv1 (YellowPather Access Control Manager version 1), formerly known as MDEFS. The project repository is available at the link: https://github.com/YarosIshkov2005/YellowPather.git
 
 📑 This is an Open Source project, so everyone can make their own changes, improvements, fixes, etc. Yaroslav Ishkov 2026 ❤️
 
@@ -178,7 +180,7 @@ Dear Windows 7 nostalgics! Today I want to present my first truly complex projec
 
 ### What is this program 🖥
 
-In this project, I tried to create a simple file explorer for Windows 7, which includes the following features:
+In this project, I tried to create a simple file explorer for Windows/Linux/MacOS, which includes the following features:
 
 **1. Recursive search by extension**
 
@@ -210,7 +212,7 @@ In addition to recursive search, YellowPather has a built-in command line mode. 
 > `cmd:/`
 > `cmd:/` is the prefix signaling successful command line activation.
 
-**Commands:** Currently, only 3 commands are available (more are planned in the future). Let's look at the syntax for each:
+**Commands:**A 3 commands are available. Let's look at the syntax for each:
 
 *   `copy "source" to "destination"`
     *   **What it does:** Copies the "source" object to the "destination" folder, where "source" is the path to the object being copied, and "destination" is the path to the target folder.
